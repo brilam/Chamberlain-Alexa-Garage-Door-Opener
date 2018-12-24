@@ -33,6 +33,21 @@ AUTHENTICATED_LOGIN_HEADERS = {
     "Content-Type": "application/json"
 }
 
+# Door Action Messages
+OPENING_DOOR_INDEX = 1
+CLOSING_DOOR_INDEX = 2
+ALREADY_CLOSED_INDEX = 3
+ALREADY_OPENED_INDEX = 4
+OPENING_INDEX = 5
+CLOSING_INDEX = 6
+
+DOOR_MESSAGES = {OPENING_DOOR_INDEX: "Please wait. The garage door is opening.",
+                 CLOSING_DOOR_INDEX: "Please wait. The garage door is closing.",
+                 ALREADY_CLOSED_INDEX: "The door is already closed.",
+                 ALREADY_OPENED_INDEX: "The door is already opened.",
+                 OPENING_INDEX: "Opening the garage door",
+                 CLOSING_INDEX: "Closing the garage door"}
+
 
 def generate_security_token(username, password):
     """
@@ -120,25 +135,21 @@ def get_device_sn_endpoint(devices_endpoint):
 
 def validate_door_action(devices_endpoint, door_action):
     """
-    Returns on whether or not the door action is valid. There are a few ways for an invalid action to occur:
+    Returns a door error message number if the action is invalid. There are a few ways for an invalid action to occur:
         1) The door is opening or closing.
         2) The user requests to open the door when the door is already open.
         3) The user requests to close the door when the door is already closed.
     :param devices_endpoint: the devices endpoint URL
-    :return: whether or not the door action is valid
+    :return: an error message number if the action is invalid
     """
-    is_valid_action = True
     if get_door_state(devices_endpoint) == "opening":
-        print("Please wait. The garage door is opening.")
-        is_valid_action = False
+        return OPENING_DOOR_INDEX
     elif get_door_state(devices_endpoint) == "closing":
-        print("Please wait. The garage door is closing.")
-        is_valid_action = False
+        return CLOSING_DOOR_INDEX
     elif get_door_state(devices_endpoint) == "closed" and door_action == "close":
-        is_valid_action = False
+        return ALREADY_CLOSED_INDEX
     elif get_door_state(devices_endpoint) == "open" and door_action == "open":
-        is_valid_action = False
-    return is_valid_action
+        return ALREADY_OPENED_INDEX
 
 
 def do_door_action(devices_endpoint, door_action):
@@ -150,11 +161,11 @@ def do_door_action(devices_endpoint, door_action):
     device_sn_endpoint = get_device_sn_endpoint(devices_endpoint)
 
     actions_endpoint = device_sn_endpoint + "/actions"
-    is_valid_door_action = validate_door_action(devices_endpoint, door_action)
+    door_error_message_number = validate_door_action(devices_endpoint, door_action)
 
-    # If the door action isn't valid don't do the action
-    if is_valid_door_action is False:
-        return
+    # If there is a door action error, return the error number back
+    if door_error_message_number is not None:
+        return door_error_message_number
 
     door_action_data = {"action_type": door_action}
     door_state_change_request = requests.put(actions_endpoint, headers=AUTHENTICATED_LOGIN_HEADERS,
@@ -163,15 +174,21 @@ def do_door_action(devices_endpoint, door_action):
     # Notifies the user when the door is being open or closed
     if door_state_change_request.status_code == 204:
         if door_action == "open":
-            print("Opening the garage door")
+            door_message_number = OPENING_DOOR_INDEX
         elif door_action == "close":
-            print("Closing the garage door")
+            door_message_number = CLOSING_DOOR_INDEX
+    return door_message_number
 
 
 if __name__ == "__main__":
     # Just some sample code to illustrate how this works (login, open and close)
-    generate_security_token("email@email.com", "password")
+    with open("config.json") as config_file:
+        config_contents = config_file.read()
+        login_credentials = json.loads(config_contents)
+        username = login_credentials["Username"]
+        password = login_credentials["Password"]
+        generate_security_token(username, password)
+
     devices_endpoint = get_devices_endpoint()
     get_door_state(devices_endpoint)
-    do_door_action(devices_endpoint, "open")
-    do_door_action(devices_endpoint, "close")
+    message_index = do_door_action(devices_endpoint, "open")

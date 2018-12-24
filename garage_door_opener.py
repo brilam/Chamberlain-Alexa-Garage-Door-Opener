@@ -10,9 +10,6 @@ EXPAND_ACCOUNT_ENDPOINT = API_V5_ENDPOINT + "/My?expand=account"
 # This ID seems to be static
 application_id = "NWknvuBd7LoFHfXmKNMBcgajXtZEgKUh4V7WNzMidrpUUluDpVYVZx+xT4PCM5Kx"
 
-# Security Token
-security_token = "00000000-0000-0000-0000-00000000"
-
 # Device Index
 GARAGE_DOOR_DEVICE_INDEX = 0
 
@@ -32,7 +29,6 @@ AUTHENTICATED_LOGIN_HEADERS = {
     "Accept-Language": "en-ca",
     "User-Agent": "Chamberlain/9273 CFNetwork/974.2.1 Darwin/18.0.0",
     "MyQApplicationId": application_id,
-    "SecurityToken": security_token,
     "Connection": "keep-alive",
     "Content-Type": "application/json"
 }
@@ -154,7 +150,7 @@ def do_door_action(devices_endpoint, door_action):
     device_sn_endpoint = get_device_sn_endpoint(devices_endpoint)
 
     actions_endpoint = device_sn_endpoint + "/actions"
-    is_valid_door_action = validate_door_action(devices_endpoint)
+    is_valid_door_action = validate_door_action(devices_endpoint, door_action)
 
     # If the door action isn't valid don't do the action
     if is_valid_door_action is False:
@@ -177,5 +173,5 @@ if __name__ == "__main__":
     generate_security_token("email@email.com", "password")
     devices_endpoint = get_devices_endpoint()
     get_door_state(devices_endpoint)
-    # do_door_action(devices_endpoint, "open")
-    # do_door_action(devices_endpoint, "close")
+    do_door_action(devices_endpoint, "open")
+    do_door_action(devices_endpoint, "close")

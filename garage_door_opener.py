@@ -146,40 +146,35 @@ def validate_door_action(devices_endpoint, door_action):
 
 
 def do_door_action(devices_endpoint, door_action):
+    """
+    Does a door action (open or close the door)
+    :param devices_endpoint: the devices endpoint URL
+    :param door_action: the door action (open or close)
+    """
     device_sn_endpoint = get_device_sn_endpoint(devices_endpoint)
 
     actions_endpoint = device_sn_endpoint + "/actions"
     is_valid_door_action = validate_door_action(devices_endpoint)
 
-    # If the door action isn't valid do nothing after notifying the user it is invalid
+    # If the door action isn't valid don't do the action
     if is_valid_door_action is False:
         return
 
-    # If the door action is open, open the garage door if it is closed
-    if door_action == "open":
-        if is_door_closed(devices_endpoint):
-            open_data = {"action_type" : door_action}
-            open_door_request = requests.put(actions_endpoint, headers=AUTHENTICATED_LOGIN_HEADERS, data=json.dumps(open_data))
-            # This should be logged rather than printed
-            if open_door_request.status_code == 204:
-                print("Opening the garage door")
-            else:
-                print("Error opening the garage door")
-    # If the door is close, close the garage door if it is open
-    elif door_action == "close":
-        if is_door_closed(devices_endpoint) is False:
-            close_data = {"action_type": door_action}
-            close_door_request = requests.put(actions_endpoint, headers=AUTHENTICATED_LOGIN_HEADERS, data=json.dumps(close_data))
-            # This should be logged rather than printed
-            if close_door_request.status_code == 204:
-                print("Closing the garage door")
-            else:
-                print("Error closing the garage door")
+    door_action_data = {"action_type": door_action}
+    door_state_change_request = requests.put(actions_endpoint, headers=AUTHENTICATED_LOGIN_HEADERS,
+                                             data=json.dumps(door_action_data))
+
+    # Notifies the user when the door is being open or closed
+    if door_state_change_request.status_code == 204:
+        if door_action == "open":
+            print("Opening the garage door")
+        elif door_action == "close":
+            print("Closing the garage door")
 
 
 if __name__ == "__main__":
     # Just some sample code to illustrate how this works (login, open and close)
-    generate_security_token("go2mynet@hotmail.com", "Bellamy123")
+    generate_security_token("email@email.com", "password")
     devices_endpoint = get_devices_endpoint()
     get_door_state(devices_endpoint)
     # do_door_action(devices_endpoint, "open")

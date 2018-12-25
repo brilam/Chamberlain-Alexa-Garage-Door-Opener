@@ -6,6 +6,7 @@
     AWS Lambda or an equivalent web service (as outlined by Amazon's requirements).
 """
 import logging
+import json
 import garage_door_opener
 
 from ask_sdk_core.skill_builder import SkillBuilder
@@ -43,7 +44,12 @@ class LaunchRequestHandler(AbstractRequestHandler):
         :return: a Response which contains a message greeting the user to the skill
         """
         speech_text = "Welcome to the Chamberlain Garage Door Opener!"
-        garage_door_opener.generate_security_token("email@email.com", "password")
+        with open("config.json") as config_file:
+            config_contents = config_file.read()
+            login_credentials = json.loads(config_contents)
+            username = login_credentials["Username"]
+            password = login_credentials["Password"]
+            garage_door_opener.generate_security_token(username, password)
 
         handler_input.response_builder.speak(speech_text).set_card(
             SimpleCard("Chamberlain Unofficial Garage Door Opener", speech_text)).set_should_end_session(
@@ -129,7 +135,6 @@ class CloseGarageDoorIntentHandler(AbstractRequestHandler):
         :param handler_input: the handler input
         :return: a Response that indicates a message to the user about closing the garage door
         """
-        # type: (HandlerInput) -> Response
         devices_endpoint = garage_door_opener.get_devices_endpoint()
         door_message_number = garage_door_opener.do_door_action(devices_endpoint, "close")
         speech_text = garage_door_opener.DOOR_MESSAGES[door_message_number]
@@ -144,7 +149,7 @@ class HelpIntentHandler(AbstractRequestHandler):
     This class is responsible for handling help that the user may need with the skill.
     """
     def can_handle(self, handler_input):
-        """
+    	"""
         Returns if the intent name is AMAZON.HelpIntent and invokes the AMAZON.HelpIntent with the handler input.
         :param handler_input: the handler input
         :return: if the intent name is AMAZON.HelpIntent and invokes the AMAZON.HelpIntent with the handler input
@@ -169,7 +174,6 @@ class CancelOrStopIntentHandler(AbstractRequestHandler):
     """
     This class is responsible for handling of closing the garage door opener.
     """
-
     def can_handle(self, handler_input):
         """
         Returns if the intent name is AMAZON.CancelIntent or AMAZON.Stopintent and invokes it with the handler_input.
@@ -242,6 +246,8 @@ class CatchAllExceptionHandler(AbstractExceptionHandler):
 # Garage door specific handlers
 sb.add_request_handler(LaunchRequestHandler())
 sb.add_request_handler(CheckGarageDoorStateIntentHandler())
+sb.add_request_handler(OpenGarageDoorIntentHandler())
+sb.add_request_handler(CloseGarageDoorIntentHandler())
 
 # Required by Amazon's specifications
 sb.add_request_handler(HelpIntentHandler())

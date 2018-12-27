@@ -1,0 +1,55 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "garage door opener",
+            "intents": [
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "CheckGarageDoorStateIntent",
+                    "slots": [],
+                    "samples": [
+                        "check the status of my garage door",
+                        "is the garage door closed",
+                        "is the garage door open"
+                    ]
+                },
+                {
+                    "name": "AMAZON.NavigateHomeIntent",
+                    "samples": []
+                },
+                {
+                    "name": "OpenGarageDoorIntent",
+                    "slots": [],
+                    "samples": [
+                        "open garage door",
+                        "open the garage door"
+                    ]
+                },
+                {
+                    "name": "CloseGarageDoorIntent",
+                    "slots": [],
+                    "samples": [
+                        "close garage door",
+                        "close the garage door"
+                    ]
+                }
+            ],
+            "types": []
+        }
+    }
+}

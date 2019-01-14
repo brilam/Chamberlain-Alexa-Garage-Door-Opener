@@ -13,7 +13,11 @@ Unfortunately, due to the skill being unofficial, I cannot publish to the Alexa 
 be used is via a developer account. You'll need to make a developer account with Amazon and you'll need either AWS
 Lambda or a web service that adheres to Amazon's requirements which can be found [here](https://developer.amazon.com/docs/custom-skills/host-a-custom-skill-as-a-web-service.html)
 
-More information on setup will be provided soon!
+Setting this up is similar to setting up any other Alexa skill as a developer. I would recommend that you check [this](https://github.com/alexa/skill-sample-python-helloworld-classes/blob/master/instructions/1-voice-user-interface.md) 
+from Amazon. Instead of using the Hello World skill, you will be uploading garage_door_opener.py and alexa_main.py 
+to your AWS Lambda or web service, and it'll invoke alexa_main.handler. You will be using the JSON in the 
+models/ folder for your Alexa Skill in the Alexa Developer Console. You can replace this JSON directly
+under JSON editor.
 
 ## Usage
 Using the garage door opener skill is easy!

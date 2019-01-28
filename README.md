@@ -1,4 +1,6 @@
 # Chamberlain Alexa Unofficial Garage Door Opener
+![logo](https://github.com/brilam/Chamberlain-Alexa-Garage-Door-Opener/blob/master/logo/alexa-garage-door-opener-logo.png)
+
 Control and monitor your garage door using Alexa. You can check the status of your garage door, and open and close the
 garage door.
 
